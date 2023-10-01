@@ -1,5 +1,6 @@
 // importar dependencias y modulos
 const bcrypt = require("bcrypt");
+const fs = require("fs");
 
 // importacion de modulos
 const User = require("../models/user");
@@ -322,6 +323,68 @@ const update = (req, res) => {
     
 }
 
+const upload = async (req, res) => {
+    // recoger el fichero de imagen y comprobar que existe
+    if(!req.file){
+        return res.status(404).json({
+            status: "error",
+            message: "La peticion no incluye la imagen",
+        });
+    }
+
+    // conseguir el nombre del archivo
+    let image = req.file.originalname;
+
+    // sacar la extension del archivo
+    const imageSplit = image.split("\.");
+    const extension = imageSplit[1];
+
+    // validar extension
+    if ((extension != "png" && extension != "jpg" && extension != "jpeg" && extension != "gif")) {
+        const filePath = req.file.path;
+
+        // si no es una imagen la boramos
+        const fileDeleted = fs.unlinkSync(filePath);
+
+        return res.status(400).send({
+            status: "error",
+            message: "Extension del fichero invalido",
+        });
+    }
+    
+    // guardar archivo
+    try {
+        let userUpdated = await User.findByIdAndUpdate(
+            req.user.id,
+            { image: req.file.filename },
+            { new: true }
+        );
+
+        if (!userUpdated) {
+            return res.status(400).json({
+                status: "error",
+                message: "Error en la subida del avatar",
+            });
+        }
+
+        // devolver respuesta
+        return res.status(200).send({
+            status: "success",
+            file: req.file,
+            user: userUpdated,
+        });
+    } catch (error) {
+        if (error) {
+            return res.status(500).json({
+                status: "error",
+                message: "Error al guardar el avatar",
+            });
+        }
+    }
+
+    
+}
+
 // Exportar accion
 module.exports = {
     pruebaUser,
@@ -329,5 +392,6 @@ module.exports = {
     login,
     profile,
     list,
-    update
+    update,
+    upload
 };
