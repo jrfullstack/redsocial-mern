@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const fs = require("fs");
 const path = require("path");
 
-// importacion de modulos
+// importacion de models
 const User = require("../models/user");
 
 // importacion de servicios
@@ -287,7 +287,7 @@ const update = (req, res) => {
             // buscar y actualizar
             try {
                 let userUpdated = await User.findByIdAndUpdate(
-                    userIdentity.id,
+                    {_id: userIdentity.id},
                     userToUpdate,
                     { new: true }
                 );
@@ -357,7 +357,7 @@ const upload = async (req, res) => {
     // guardar archivo
     try {
         let userUpdated = await User.findByIdAndUpdate(
-            req.user.id,
+            {_id: req.user.id},
             { image: req.file.filename },
             { new: true }
         );
