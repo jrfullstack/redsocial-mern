@@ -1,12 +1,14 @@
 // importar dependencias y modulos
 const bcrypt = require("bcrypt");
 const fs = require("fs");
+const path = require("path");
 
 // importacion de modulos
 const User = require("../models/user");
 
 // importacion de servicios
 const jwt = require("../services/jwt");
+
 
 
 
@@ -380,7 +382,29 @@ const upload = async (req, res) => {
                 message: "Error al guardar el avatar",
             });
         }
-    }
+    }    
+}
+
+const avatar = (req, res) => {
+    // sacar el parametro de la url
+    const file = req.params.file;
+
+    // montar el path real de la imagen
+    const filePath = "./uploads/avatars/"+file;
+
+    // validar
+    fs.stat(filePath, (error, exists) => {
+        if (!exists) {
+            return res.status(400).json({
+                status: "error",
+                message: "No existe la imagen",
+            });
+        }
+
+        // devolver el file
+        return res.sendFile(path.resolve(filePath))
+        
+    })
 
     
 }
@@ -393,5 +417,6 @@ module.exports = {
     profile,
     list,
     update,
-    upload
+    upload,
+    avatar
 };
