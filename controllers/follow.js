@@ -12,7 +12,7 @@ const pruebaFollow = (req, res) => {
 };
 
 // Accion de guardar un follow / seguir
-const save = (req, res) => { 
+const save = async(req, res) => { 
     // conseguir datos por body - aqui voy a seguir
     const params = req.body;
 
@@ -29,8 +29,10 @@ const save = (req, res) => {
 
     
     // guardar objeto en bd
-    userToFollow.save()
+    await userToFollow.save()
                 .then((followStored) => {
+        
+
         return res.status(200).send({
             status: "success",
             identity: req.user,
@@ -42,23 +44,42 @@ const save = (req, res) => {
             message: "No se pudo seguir al usuario"
         });
     });
-    // userToFollow.save((error, followStored) => {
-
-
-    //     return res.status(200).send({
-    //         status: "success",
-    //         identity: req.user,
-    //         follow: followStored,
-    //     });
-    // })
-
-
     
  }
 
 // Accion de borrar un follow / dejar de seguir
+const unFollow = async (req, res) => {
+    // recoger el id del usuario identificado
+    const userId = req.user.id;
 
-// Accion listado de usuarios seguido
+    // recoger el id del usuario a dejar de seguir
+    const followedId = req.params.id;
+
+    // buscar en la base de datos la coincidencia y eliminarla
+    await Follow.deleteOne({
+        "user": userId,
+        "followed": followedId
+
+    }).then(()=> {
+
+        return res.status(200).send({
+            status: "success",
+            message: "Follow eliminado correctamente",
+        });
+
+    }).catch(() => {
+        return res.status(500).send({
+            status: "error",
+            message: "No se pudo dejar de seguir al usuario",
+        });
+    })
+    
+}
+
+// Accion listado de usuarios seguido por un usuario
+const list = (req, res) => {
+    
+}
 
 // Accion listado de usuarios que me siguen
 
@@ -69,5 +90,6 @@ const save = (req, res) => {
 // Exportar accion
 module.exports = {
     pruebaFollow,
-    save
+    save,
+    unFollow
 };
