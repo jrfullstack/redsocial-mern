@@ -76,13 +76,76 @@ const unFollow = async (req, res) => {
     
 }
 
-// Accion listado de usuarios seguido por un usuario
-const list = (req, res) => {
+// Accion listado de usuarios que estoy siguiendo (A los qu sigo)
+const following = async (req, res) => {
+    // recoger el id del usuario identificado
+    const userId = req.params.id || req.user.id;
+    // comprobar si me llega el id por parametro
+    // if(req.params.id) userId = req.params.id;
+
+    // comprobar si me llega la pagina por parametro, si no me llega sera la 1
+    let page = parseInt(req.params.page) || 1;
+
+    // cuantos usuarios por pagina quiero mostrar
+    const itemsPerPage = 5;
+
+    // buscar los follow en la base de datos, popular los datos y paginar
+    //Metodo #1 - Error populate ist not a function
+    // Follow.find({ user: userId })
+    //     .populate("user followed", "-password -role -__v")        
+    //     .paginate(page, itemsPerPage, (error, follows, total) => {
+    //         return res.status(200).send({
+    //             status: "success",
+    //             message: "Listado que seguio",
+    //             userId,
+    //             follows,
+    //             followPerPage,
+    //             total,
+    //             pages: Math.ceil(total / itemsPerPage),
+    //         });
+    //     });
+
+    // Metodo #2
+    // opciones de la paginacion
+    const query = { user: userId };
+    const options = {
+        select: "name password",
+        page: page,
+        limit: itemsPerPage,
+        sort: { created_at: -1 },
+        // populate: "user followed",
+        populate: [{
+            path: "user followed",
+            select: "-password -role -__v"
+        }],
+        collation: {
+            locale: "es",
+        },
+    };
+
+    
+    const follows = await Follow.paginate(query, options);
+    // obtenes el numero total de follows
+    // console.log(follows.totalDocs);
+
+    return res.status(200).send({
+        status: "success",
+        message: "Listado que seguio",
+        userId,
+        follows,
+        total: follows.totalDocs,
+        pages: follows.totalPages,
+    });
     
 }
 
-// Accion listado de usuarios que me siguen
-
+// Accion listado de usuarios que siguen a culquier usuario (mis seguidores)
+const followers = (req, res) => {
+    return res.status(200).send({
+        status: "success",
+        message: "Listado de usuarios q me siguen",
+    });
+};
 
 
 
@@ -91,5 +154,7 @@ const list = (req, res) => {
 module.exports = {
     pruebaFollow,
     save,
-    unFollow
+    unFollow,
+    following,
+    followers,
 };

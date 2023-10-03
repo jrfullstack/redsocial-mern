@@ -150,7 +150,7 @@ const login = async(req, res) => {
 const profile = async (req, res) => {
     // recibir el parametro de id deusuario por la url
     const id = req.params.id;
-    console.log(id)
+    // console.log(id)
 
     try {
         // Obtener perfil usuario
@@ -206,7 +206,7 @@ const list = async(req, res) => {
         // obtenes los usuarios
         const users = await User.paginate({}, options);
 
-        // ontenes el numero total de usuarios
+        // obtenes el numero total de usuarios
         const total = await User.countDocuments();
 
         // si no existe un usuario devolvermos el error

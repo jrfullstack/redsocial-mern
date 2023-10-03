@@ -1,4 +1,6 @@
 const { Schema, model } = require("mongoose");
+const mongoosePaginate = require("mongoose-paginate-v2");
+
 
 const FollowSchema = Schema({
     // el usuario que si a...(el usuario q va a seguir a alguien)
@@ -17,6 +19,9 @@ const FollowSchema = Schema({
         default: Date.now,
     },
 });
+
+FollowSchema.plugin(mongoosePaginate);
+
 
 // exportamos el esquema
 // Como se llama la identidad
