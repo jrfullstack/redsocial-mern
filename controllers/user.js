@@ -195,11 +195,10 @@ const list = async(req, res) => {
     const options = {
         page: page,
         limit: itemsPerPage,
-        sort: { _id: -1 },
+        sort: { created_at: -1 },
         collation: {
             locale: "es",
         },
-        
     };    
 
     try {
@@ -207,7 +206,7 @@ const list = async(req, res) => {
         const users = await User.paginate({}, options);
 
         // obtenes el numero total de usuarios
-        const total = await User.countDocuments();
+        // const total = await User.countDocuments();
 
         // si no existe un usuario devolvermos el error
         if (!users)
@@ -222,10 +221,8 @@ const list = async(req, res) => {
             users: users.docs,
             page,
             itemsPerPage,
-            total,
-
-            // redondeamos con ceil el numero de paginas con usuarios a mostrar
-            pages: Math.ceil(total / itemsPerPage)
+            total: users.totalDocs,
+            pages: users.totalPages,
         });
 
     } catch (error) {

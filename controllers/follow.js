@@ -122,7 +122,6 @@ const following = async (req, res) => {
             locale: "es",
         },
     };
-
     
     const follows = await Follow.paginate(query, options);
     // obtenes el numero total de follows
@@ -132,7 +131,7 @@ const following = async (req, res) => {
         status: "success",
         message: "Listado que seguio",
         userId,
-        follows,
+        follows: follows.docs,
         total: follows.totalDocs,
         pages: follows.totalPages,
     });
