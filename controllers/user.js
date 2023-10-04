@@ -201,7 +201,7 @@ const list = async(req, res) => {
 
     // opciones de la paginacion
     const options = {
-        page: page,
+        page,
         limit: itemsPerPage,
         sort: { created_at: -1 },
         collation: {
@@ -217,11 +217,14 @@ const list = async(req, res) => {
         // const total = await User.countDocuments();
 
         // si no existe un usuario devolvermos el error
-        if (!users)
+        if (!users){
             return res.status(404).json({
                 status: "Error",
                 message: "No se han encontrado usuarios",
             });
+        }
+
+        let { followers, following } = await followUserIds(req.user.id);
 
         // devolver el resultado si todo a salido bien
         return res.status(200).send({
@@ -231,6 +234,8 @@ const list = async(req, res) => {
             itemsPerPage,
             total: users.totalDocs,
             pages: users.totalPages,
+            user_following: following,
+            user_follow_me: followers,
         });
 
     } catch (error) {

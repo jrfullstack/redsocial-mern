@@ -126,7 +126,8 @@ const following = async (req, res) => {
     
     const follows = await Follow.paginate(query, options);
 
-    let followUserId = await followUserIds(userId);
+    // servicio de seguidores
+    let {followers, following} = await followUserIds(req.user.id);
 
     return res.status(200).send({
         status: "success",
@@ -135,8 +136,8 @@ const following = async (req, res) => {
         follows: follows.docs,
         total: follows.totalDocs,
         pages: follows.totalPages,
-        user_following: followUserId.following,
-        user_follow_me: followUserId.followers,
+        user_following: following,
+        user_follow_me: followers,
     });
     
 }
