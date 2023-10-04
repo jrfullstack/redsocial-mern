@@ -8,6 +8,8 @@ const User = require("../models/user");
 
 // importacion de servicios
 const jwt = require("../services/jwt");
+const { followThisUser, followUserIds } = require("../services/followServices");
+
 
 
 
@@ -167,11 +169,17 @@ const profile = async (req, res) => {
             });
         }
 
+        // info de seguimiento
+        // id del usuario identificado y el id q viene por parametro
+        const {following, follower} = await followThisUser(req.user.id, id)
+
         // devolver los datos del usuario si todo sale bien
         // devolver informacion del follow
         return res.status(200).send({
             status: "success",
-            user: userProfile
+            user: userProfile,
+            following,
+            follower
         });
 
     } catch (error) {

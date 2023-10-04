@@ -1,6 +1,9 @@
 // Importar models
 const Follow = require("../models/follow");
-const User = require("../models/user");
+// const User = require("../models/user");
+
+// servicios
+const {followThisUser, followUserIds} = require("../services/followServices");
 
 
 
@@ -109,11 +112,9 @@ const following = async (req, res) => {
     // opciones de la paginacion
     const query = { user: userId };
     const options = {
-        select: "name password",
-        page: page,
+        page,
         limit: itemsPerPage,
         sort: { created_at: -1 },
-        // populate: "user followed",
         populate: [{
             path: "user followed",
             select: "-password -role -__v"
@@ -124,16 +125,18 @@ const following = async (req, res) => {
     };
     
     const follows = await Follow.paginate(query, options);
-    // obtenes el numero total de follows
-    // console.log(follows.totalDocs);
+
+    let followUserId = await followUserIds(userId);
 
     return res.status(200).send({
         status: "success",
-        message: "Listado que seguio",
+        message: "Listado de usuarios que seguio",
         userId,
         follows: follows.docs,
         total: follows.totalDocs,
         pages: follows.totalPages,
+        user_following: followUserId.following,
+        user_follow_me: followUserId.followers,
     });
     
 }
