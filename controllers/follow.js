@@ -30,10 +30,11 @@ const save = async(req, res) => {
         followed: params.followed,
     });
 
+    // TODO: validacion si ya existe en la base de datos ese registro
+    
     
     // guardar objeto en bd
-    await userToFollow.save()
-                .then((followStored) => {
+    await userToFollow.save().then((followStored) => {
         
 
         return res.status(200).send({
@@ -143,10 +144,45 @@ const following = async (req, res) => {
 }
 
 // Accion listado de usuarios que siguen a culquier usuario (mis seguidores)
-const followers = (req, res) => {
+const followers = async (req, res) => {
+    // recoger el id del usuario identificado
+    const userId = req.params.id || req.user.id;
+
+    // comprobar si me llega la pagina por parametro, si no me llega sera la 1
+    let page = parseInt(req.params.page) || 1;
+
+    // cuantos usuarios por pagina quiero mostrar
+    const itemsPerPage = 5;
+
+    const query = { followed: userId };
+    const options = {
+        page,
+        limit: itemsPerPage,
+        sort: { created_at: -1 },
+        populate: [
+            {
+                path: "user",
+                select: "-password -role -__v",
+            },
+        ],
+        collation: {
+            locale: "es",
+        },
+    };
+
+    const follows = await Follow.paginate(query, options);
+
+    // servicio de seguidores
+    let { followers, following } = await followUserIds(req.user.id);
+
     return res.status(200).send({
         status: "success",
-        message: "Listado de usuarios q me siguen",
+        message: "Listado de usuarios que me siguen",
+        follows: follows.docs,
+        total: follows.totalDocs,
+        pages: follows.totalPages,
+        user_following: following,
+        user_follow_me: followers,
     });
 };
 
