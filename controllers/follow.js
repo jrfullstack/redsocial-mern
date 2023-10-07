@@ -118,7 +118,7 @@ const following = async (req, res) => {
         sort: { created_at: -1 },
         populate: [{
             path: "user followed",
-            select: "-password -role -__v"
+            select: "-password -role -__v -email"
         }],
         collation: {
             locale: "es",
@@ -162,7 +162,7 @@ const followers = async (req, res) => {
         populate: [
             {
                 path: "user",
-                select: "-password -role -__v",
+                select: "-password -role -__v -email",
             },
         ],
         collation: {

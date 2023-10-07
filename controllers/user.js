@@ -202,6 +202,7 @@ const list = async(req, res) => {
         page,
         limit: itemsPerPage,
         sort: { created_at: -1 },
+        select: "-password -role -__v -email",
         collation: {
             locale: "es",
         },

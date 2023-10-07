@@ -107,11 +107,6 @@ const remove = async (req, res) => {
             // error
         });
     }
-
-    // return res.status(200).send({
-    //     status: "success",
-    //     message: "Pueba de eliminacion"
-    // })
 }
 
 // Listar publicaciones de un usuario
@@ -131,7 +126,7 @@ const user = async(req, res) => {
         sort: { created_at: -1 },
         populate: [{
             path: "user",
-            select: "-password -role -__v"
+            select: "-password -role -__v -email"
         }],
         collation: {
             locale: "es",
