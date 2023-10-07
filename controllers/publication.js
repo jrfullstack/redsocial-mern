@@ -51,6 +51,36 @@ const save = (req, res) => {
 }
 
 // Sacar una publicacion
+const detail = async(req, res) => {
+    // sacar el id de la publicacion
+    const publicationId = req.params.id
+
+    try {
+        // buscar la publicacion q coincida con el id
+        const publicationStored = await Publication.findById(publicationId);
+        if (!publicationStored) {
+            return res.status(400).send({
+                status: "error",
+                message: "No existe la publicacion",
+            });
+        }
+
+        // devolver respuesta
+        return res.status(200).send({
+            status: "success",
+            // message: "prueba correctamente",
+            publication: publicationStored
+        });
+    } catch (error) {
+        return res.status(400).send({
+            status: "error",
+            message: "No se pudo guardar la publicacion",
+        });
+    }
+    
+
+    
+}
 
 // Eliminar publicaciones
 
@@ -65,5 +95,6 @@ const save = (req, res) => {
 // Exportar accion
 module.exports = {
     pruebaPublication,
-    save
+    save,
+    detail
 };
