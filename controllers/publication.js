@@ -1,4 +1,12 @@
+// Modulos
+const fs = require("fs");
+const path = require("path");
+
+//  Modelos DB
 const Publication = require("../models/publication");
+
+//  Servicios
+const { followUserIds } = require("../services/followServices");
 
 
 // Acciones de prueba
@@ -40,14 +48,7 @@ const save = (req, res) => {
                         status: "error",
                         message: "No pe pudo guardar la publicacion"
                     })
-                  })
-
-
-    // devolver respuesta
-    // return res.status(200).send({
-    //     status: "success",
-    //     message: "Guardar publicacion"
-    // })
+                  });
 }
 
 // Sacar una publicacion
@@ -166,10 +167,6 @@ const user = async(req, res) => {
             // error
         });
     }
-    
-
-
-    
 }
 
 // subir ficheros
@@ -249,11 +246,92 @@ const upload = async (req, res) => {
     }
 };
 
-// Listar publicaciones
-
-
-
 // Devolver archivos multimedia - Imagenes
+
+const media = (req, res) => {
+    // sacar el parametro de la url
+    const file = req.params.file;
+
+    // montar el path real de la imagen
+    const filePath = "./uploads/publications/" + file;
+
+    // validar
+    fs.stat(filePath, (error, exists) => {
+
+        if (!exists) {
+            return res.status(400).json({
+                status: "error",
+                message: "No existe la imagen",
+            });
+        }
+
+        // devolver el file
+        return res.sendFile(path.resolve(filePath));
+    });
+};
+
+// Listar publicaciones de los usuarios a los q seguimos
+
+const feed = async(req, res) => {
+    // Pagina actual
+    let page = parseInt(req.params.page) || 1;
+
+    // consulta con mongoose pagination
+    // limitar usuarios por pagina
+    let itemsPerPage = 5;
+
+    // const query = { user: following };
+    const options = {
+        page,
+        limit: itemsPerPage,
+        sort: { created_at: -1 },
+        populate: [
+            {
+                path: "user",
+                select: "-password -role -__v -email",
+            },
+        ],
+        collation: {
+            locale: "es",
+        },
+    };
+
+    // Sacar array de id de usuarios q seguimos
+    try {
+        // array
+        const { following } = await followUserIds(req.user.id);
+
+        // Buscar las publicaciones, ordenar, popular y paginar
+        const publications = await Publication.paginate({user: following}, options);
+
+        // validamos
+        if (!publications) {
+            return res.status(500).json({
+                status: "error",
+                message: "No hay publicaciones para mostrar",
+            });
+        }
+
+        return res.status(200).send({
+            status: "success",
+            message: "Feed de publicaciones",
+            following,
+            page,
+            total: publications.totalDocs,
+            pages: publications.totalPages,
+            publications: publications.docs,
+        });
+    } catch (error) {
+
+        return res.status(500).json({
+            status: "error",
+            message: "No se ha podido listar las publicaciones del feed.",
+        });
+    }
+
+
+    
+}
 
 // Exportar accion
 module.exports = {
@@ -262,5 +340,7 @@ module.exports = {
     detail,
     remove,
     user,
-    upload
+    upload,
+    media,
+    feed
 };

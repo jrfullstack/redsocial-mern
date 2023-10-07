@@ -12,8 +12,6 @@ const { followThisUser, followUserIds } = require("../services/followServices");
 
 
 
-
-
 // Acciones de prueba
 const pruebaUser = (req, res) => {
     return res.status(200).send({
