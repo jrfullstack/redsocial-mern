@@ -24,7 +24,8 @@ router.get("/profile/:id", check.auth, userContoller.profile);
 router.get("/list/:page?", check.auth, userContoller.list);
 router.put("/update", check.auth, userContoller.update);
 router.post("/upload", [check.auth, uploads.single("file0")], userContoller.upload);
-router.get("/avatar/:file", check.auth, userContoller.avatar);
+router.get("/avatar/:file", userContoller.avatar);
+router.get("/counters/:id", check.auth, userContoller.counters);
 
 
 // Exportar router

@@ -5,6 +5,8 @@ const path = require("path");
 
 // importacion de models
 const User = require("../models/user");
+const Follow = require("../models/follow");
+const Publication = require("../models/publication")
 
 // importacion de servicios
 const jwt = require("../services/jwt");
@@ -291,6 +293,9 @@ const update = (req, res) => {
                 let pwd = await bcrypt.hash(userToUpdate.password, 10);
                 // le pasamos la contrasenia al objeto nuevo
                 userToUpdate.password = pwd;
+                
+            }else{
+                delete userToUpdate.password;
             }
 
             // buscar y actualizar
@@ -414,8 +419,33 @@ const avatar = (req, res) => {
         return res.sendFile(path.resolve(filePath))
         
     })
+}
 
-    
+const counters = async (req, res) => {
+    const userId = req.params.id || req.user.id;
+
+    try {
+        const following = await Follow.count({"user": userId});
+
+        const followed = await Follow.count({ "followed": userId });
+
+        const publications = await Publication.count({ "user": userId });
+
+        return res.status(200).send({
+            userId,
+            following,
+            followed,
+            publications
+        })
+
+
+    } catch (error) {
+        return res.status(500).json({
+            status: "error",
+            message: "Error en los contadores",
+        });
+    }
+
 }
 
 // Exportar accion
@@ -427,5 +457,6 @@ module.exports = {
     list,
     update,
     upload,
-    avatar
+    avatar,
+    counters
 };
