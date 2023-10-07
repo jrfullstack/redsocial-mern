@@ -172,11 +172,86 @@ const user = async(req, res) => {
     
 }
 
+// subir ficheros
+const upload = async (req, res) => {
+    // sacar id de la publicacion
+    const publicationId = req.params.id
+
+    // recoger el fichero de imagen y comprobar que existe
+    if (!req.file) {
+        return res.status(404).json({
+            status: "error",
+            message: "La peticion no incluye la imagen",
+        });
+    }
+
+    // conseguir el nombre del archivo
+    let image = req.file.originalname;
+
+    // sacar la extension del archivo
+    const imageSplit = image.split(".");
+    const extension = imageSplit[1];
+
+    // validar extension
+    if (
+        extension != "png" &&
+        extension != "jpg" &&
+        extension != "jpeg" &&
+        extension != "gif"
+    ) {
+        const filePath = req.file.path;
+
+        // si no es una imagen la borramos
+        const fileDeleted = fs.unlinkSync(filePath);
+
+        return res.status(400).send({
+            status: "error",
+            message: "Extension del fichero invalido",
+        });
+    }
+
+    // Subir arcivos
+    try {
+        let publicationUpdated = await Publication.findByIdAndUpdate(
+            // validamos que sea dueno de la publicacion
+            // y el id de la publicacion donde se subira
+            { user: req.user.id, "_id": publicationId },
+
+            // apuntamos a donde vamos a guardar la informacion
+            { file: req.file.filename },
+
+            // y me devuelve los datos nuevos
+            { new: true }
+        );
+
+        if (!publicationUpdated) {
+            return res.status(400).json({
+                status: "error",
+                message: "Error en la subida del avatar",
+            });
+        }
+
+        // devolver respuesta
+        return res.status(200).send({
+            status: "success",
+            publication: publicationUpdated,
+            file: req.file,
+        });
+
+    } catch (error) {
+
+        
+        return res.status(500).json({
+            status: "error",
+            message: "Error al guardar el avatar",
+        });
+        
+    }
+};
 
 // Listar publicaciones
 
 
-// subir ficheros
 
 // Devolver archivos multimedia - Imagenes
 
@@ -186,5 +261,6 @@ module.exports = {
     save,
     detail,
     remove,
-    user
+    user,
+    upload
 };

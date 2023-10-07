@@ -355,7 +355,7 @@ const upload = async (req, res) => {
     if ((extension != "png" && extension != "jpg" && extension != "jpeg" && extension != "gif")) {
         const filePath = req.file.path;
 
-        // si no es una imagen la boramos
+        // si no es una imagen la borramos
         const fileDeleted = fs.unlinkSync(filePath);
 
         return res.status(400).send({
