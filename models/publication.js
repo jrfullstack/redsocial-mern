@@ -18,6 +18,6 @@ const PublicationSchema = Schema({
 });
 
 
-Publication.Schema.plugin(mongoosePaginate);
+PublicationSchema.plugin(mongoosePaginate);
 
 module.exports = model("Publication", PublicationSchema, "publications");
