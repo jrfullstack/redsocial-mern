@@ -103,7 +103,7 @@ const remove = async (req, res) => {
         return res.status(500).send({
             status: "error",
             message: "No se pudo eliminar la publicacion",
-            error
+            // error
         });
     }
 
@@ -113,9 +113,68 @@ const remove = async (req, res) => {
     // })
 }
 
+// Listar publicaciones de un usuario
+const user = async(req, res) => {
+    // sacar el id de usuario
+    const userId = req.params.id;
+
+    // controlar el numero de la pagina
+    let page = parseInt(req.params.page) || 1;
+
+    let itemsPerPage = 5;
+
+    const query = { user: userId };
+    const options = {
+        page,
+        limit: itemsPerPage,
+        sort: { created_at: -1 },
+        populate: [{
+            path: "user",
+            select: "-password -role -__v"
+        }],
+        collation: {
+            locale: "es",
+        },
+    };
+
+    try {
+        // buscar, populate, ordenar y paginar
+        let publications = await Publication.paginate(query, options);
+
+        // validamos si hay publicaciones
+        if (publications.docs.length <= 0 || !publications) {
+            return res.status(404).send({
+                status: "error",
+                message: "Noy publicaciones para mostrar",
+                // error
+            });
+        }
+
+        return res.status(200).send({
+            status: "success",
+            message: "Publicaciones del perfil del usuario",
+            page,
+            total: publications.totalDocs,
+            pages: publications.totalPages,
+            publications: publications.docs,
+        });
+
+    } catch (error) {
+        return res.status(500).send({
+            status: "error",
+            message: "No se pudo buscar las publicaciones",
+            // error
+        });
+    }
+    
+
+
+    
+}
+
+
 // Listar publicaciones
 
-// Listar publicaciones de un usuario
 
 // subir ficheros
 
@@ -126,5 +185,6 @@ module.exports = {
     pruebaPublication,
     save,
     detail,
-    remove
+    remove,
+    user
 };

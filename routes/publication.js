@@ -9,6 +9,8 @@ router.get("/prueba-publication", publicationContoller.pruebaPublication);
 router.post("/save", check.auth, publicationContoller.save);
 router.get("/detail/:id", check.auth, publicationContoller.detail);
 router.delete("/remove/:id", check.auth, publicationContoller.remove);
+router.get("/user/:id/:page?", check.auth, publicationContoller.user);
+
 
 // Exportar router
 module.exports = router;
