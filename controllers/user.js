@@ -11,6 +11,7 @@ const Publication = require("../models/publication")
 // importacion de servicios
 const jwt = require("../services/jwt");
 const { followThisUser, followUserIds } = require("../services/followServices");
+const { validate } = require("../helpers/validate");
 
 
 
@@ -26,7 +27,7 @@ const pruebaUser = (req, res) => {
 const register = (req, res) => {
     // recoger datos de la peticion
     let params = req.body;
-    console.log(params)
+    // console.log(params)
 
     // comprobar que me llegan
     // if comprobamos q los campos obligatorios llegan
@@ -36,6 +37,17 @@ const register = (req, res) => {
             message: "Faltan datos requeridos por enviar"
         });
     }    
+
+    // Validacion avanzada
+    try {
+        
+        validate(params);
+    } catch (error) {
+        return res.status(400).json({
+          status: "error",
+          message: "Validacion no superada",
+        });
+    }
 
     // control de usuarios duplicados
     User.find({
